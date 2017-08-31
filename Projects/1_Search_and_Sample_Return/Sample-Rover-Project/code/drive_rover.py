@@ -16,6 +16,7 @@ import json
 import pickle
 import matplotlib.image as mpimg
 import time
+import csv
 
 # Import functions for perception and decision making
 from perception import perception_step
@@ -87,7 +88,28 @@ frame_counter = 0
 second_counter = time.time()
 fps = None
 
+def logger(img_path, Rover):
+    if not os.path.exists('./log.csv'):
+        with open('log.csv', 'w') as csvfile:
+            fieldnames = ['Path', 'SteerAngle', 'Throttle', 'Brake', 'Speed', 'X_Position', 'Y_Position', 'Pitch','Yaw','Roll']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
 
+    with open('log.csv', 'r') as csvfile:
+        sniffer = csv.Sniffer()
+        has_header = sniffer.has_header(csvfile.readline())
+        if not has_header:
+            with open('log.csv', 'w') as csvfile:
+    #             fieldnames = ['Path;SteerAngle;Throttle;Brake;Speed;X_Position;Y_Position;Pitch;Yaw;Roll']
+                fieldnames = ['Path', 'SteerAngle', 'Throttle', 'Brake', 'Speed', 'X_Position', 'Y_Position', 'Pitch','Yaw','Roll']
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+
+    with open('log.csv', 'a') as csvfile:
+        filewriter = csv.writer(csvfile, delimiter=',')
+        filewriter.writerow([img_path, str(Rover.steer), str(Rover.throttle), str(Rover.brake), str(Rover.vel), str(Rover.pos[0]), str(Rover.pos[1]), str(Rover.pitch), str(Rover.yaw), str(Rover.roll)])
+    
+    
 # Define telemetry function for what to do with incoming data
 @sio.on('telemetry')
 def telemetry(sid, data):
@@ -144,6 +166,7 @@ def telemetry(sid, data):
             timestamp = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
             image_filename = os.path.join(args.image_folder, timestamp)
             image.save('{}.jpg'.format(image_filename))
+            logger(image_filename+'.jpg', Rover)
 
     else:
         sio.emit('manual', data={}, skip_sid=True)
@@ -204,6 +227,9 @@ if __name__ == '__main__':
         print("Recording this run ...")
     else:
         print("NOT recording this run ...")
+
+    if os.path.exists('./log.csv'):
+        os.remove('./log.csv')
     
     # wrap Flask application with socketio's middleware
     app = socketio.Middleware(sio, app)
