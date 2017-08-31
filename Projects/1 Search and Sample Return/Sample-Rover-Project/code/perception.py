@@ -70,10 +70,10 @@ def pix_to_world(xpix, ypix, xpos, ypos, yaw, world_size, scale):
     return x_pix_world, y_pix_world
 
 # Define a function to perform a perspective transform
-def perspect_transform(img, src, dst):
+def perspect_transform(img, src, dst, borderValue):
            
     M = cv2.getPerspectiveTransform(src, dst)
-    warped = cv2.warpPerspective(img, M, (img.shape[1], img.shape[0]))# keep same size as input image
+    warped = cv2.warpPerspective(img, M, (img.shape[1], img.shape[0]), borderValue = borderValue)# keep same size as input image
     
     return warped
 
@@ -84,26 +84,72 @@ def perception_step(Rover):
     # TODO: 
     # NOTE: camera image is coming to you in Rover.img
     # 1) Define source and destination points for perspective transform
+    source = np.float32([[12, 140], [301,140], [200, 95], [118, 95]])
+    destination = np.float32([[156, 150],[165, 150], [165, 140], [156, 140]])
     # 2) Apply perspective transform
+    warped = perspect_transform(Rover.img, source, destination, 0)
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
+#    navigable_terrain = color_thresh(warped, rgb_thresh=(160, 160, 160))
+    navigable_terrain = color_thresh(warped, rgb_thresh=(160, 160, 160))
+        #Obstacles
+    obs_warped = perspect_transform(Rover.img, source, destination, [255, 255, 255])
+    obs_warped = 255-obs_warped
+    obstacle = color_thresh(obs_warped, rgb_thresh=(200, 200, 200))
+    mask = np.concatenate((np.zeros_like(obstacle[0:int(obstacle.shape[0]/2), :]), np.ones_like(obstacle[0:int(obstacle.shape[0]/2), :])), axis=0)
+    obstacle = cv2.bitwise_and(obstacle,mask)
+        #Rocks
+    rock_path = color_thresh(warped, rgb_thresh=(150, 100, -1))
+    path = color_thresh(warped, rgb_thresh=(130, 120, 90))
+    invert_path = np.invert(path)
+    rock = np.bitwise_and(rock_path, invert_path)
     # 4) Update Rover.vision_image (this will be displayed on left side of screen)
         # Example: Rover.vision_image[:,:,0] = obstacle color-thresholded binary image
         #          Rover.vision_image[:,:,1] = rock_sample color-thresholded binary image
         #          Rover.vision_image[:,:,2] = navigable terrain color-thresholded binary image
+    Rover.vision_image[:,:,0] = obstacle * 255
+    Rover.vision_image[:,:,1] = rock * 255
+    Rover.vision_image[:,:,2] = navigable_terrain * 255
 
     # 5) Convert map image pixel values to rover-centric coords
+    xpix, ypix = rover_coords(navigable_terrain)
+    xpix_rock, ypix_rock = rover_coords(rock)
+    xpix_obs, ypix_obs = rover_coords(obstacle)
     # 6) Convert rover-centric pixel values to world coordinates
+    worldmap = np.zeros((200, 200))
+    scale = 10
+    navigable_x_world, navigable_y_world = pix_to_world(xpix, ypix, Rover.pos[0], 
+                                Rover.pos[1], Rover.yaw, 
+                                worldmap.shape[0], scale)
+    rock_x_world, rock_y_world = pix_to_world(xpix_rock, ypix_rock, Rover.pos[0], 
+                                Rover.pos[1], Rover.yaw, 
+                                worldmap.shape[0], scale)
+    obs_x_world, obs_y_world = pix_to_world(xpix_obs, ypix_obs, Rover.pos[0], 
+                                Rover.pos[1], Rover.yaw, 
+                                worldmap.shape[0], scale)
     # 7) Update Rover worldmap (to be displayed on right side of screen)
         # Example: Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 1
         #          Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
         #          Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
-
+    Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
+    Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
+    Rover.worldmap[obs_y_world, obs_x_world, 0] += 1
+    
     # 8) Convert rover-centric pixel positions to polar coordinates
     # Update Rover pixel distances and angles
         # Rover.nav_dists = rover_centric_pixel_distances
         # Rover.nav_angles = rover_centric_angles
+    distances, angles = to_polar_coords(xpix, ypix) # Convert to polar coords
+    avg_angle = np.mean(angles) # Compute the average angle
+    rock_distances, rock_angles = to_polar_coords(rock_x_world, rock_y_world) # Convert to polar coords
+    avg_rock_angles = np.mean(rock_angles) # Compute the average angle
     
- 
-    
-    
+    Rover.nav_dists = distances
+    Rover.nav_angles = angles
+#    if distances is not None and angles is not None:
+#        print("Dist: {} Angles: {}".format(max(distances),max(angles)))
+    Rover.near_sample = False    
+#    if not np.isnan(avg_rock_angles):
+#        Rover.nav_dists = rock_distances
+#        Rover.nav_angles = rock_angles
+#        Rover.near_sample = True
     return Rover
