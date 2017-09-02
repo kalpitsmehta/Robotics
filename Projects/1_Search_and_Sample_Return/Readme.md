@@ -22,4 +22,4 @@ For this purpose,first the threshold image pixels were converted to rover-centri
 
 In this task, the decisions are to be maid for smooth navigation of the robot through the environment, find sample rock and obstacles. Following is the logic / tree of how this decisions were made.
 
-![Alt text](./Images/P1 Decision Logic.png?raw=true "Decision")
+![Alt text](./Images/P1_Logic.png?raw=true "Decision")
