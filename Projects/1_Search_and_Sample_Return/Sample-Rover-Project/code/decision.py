@@ -11,25 +11,13 @@ def decision_step(Rover):
     # Example:
     # Check if we have vision data to make decisions with
     if Rover.nav_angles is not None and Rover.nav_dists != []:
-        print("F1")
-        # Check for Rover.mode status
-#        if Rover.mode == 'forward' and Rover.near_sample:
-#            Rover.throttle = np.minimum(abs(np.mean(Rover.pos - Rover.worldmap[-1, -1, 1])),Rover.throttle_set)
-#            print("Error = {}".format(abs(np.mean(Rover.pos - Rover.worldmap[-1, -1, 1]))))
-#            if Rover.vel == 0 and not Rover.picking_up:
-#                Rover.send_pickup = not True
-#            else:
-#                Rover.send_pickup = False
-
         if Rover.mode == 'forward':
             # Check the extent of navigable terrain
             if len(Rover.nav_angles) >= Rover.stop_forward:
                 # If mode is forward, navigable terrain looks good
                 # and velocity is below max, then throttle
-                print(np.mean(Rover.nav_dists))
                 if Rover.vel < Rover.max_vel:
                     if Rover.vel < 0.2 and np.mean(Rover.nav_dists)<40:
-                        print("F1.1")
                         Rover.throttle = 0
                         Rover.steer = 80
                     else:
@@ -67,10 +55,8 @@ def decision_step(Rover):
                     # Turn range is +/- 15 degrees, when stopped the next line will induce 4-wheel turning
                     if Rover.nav_angles != [] and Rover.nav_angles is not None:
                         Rover.steer = -20 # Could be more clever here about which way to turn
-                        print('stop1 = {}'.format(np.mean(Rover.nav_angles)))
                     else:
                         Rover.steer = -5
-                        print('stop2 = {}'.format(np.mean(Rover.nav_angles)))
                 # If we're stopped but see sufficient navigable terrain in front then go!
                 if len(Rover.nav_angles) >= Rover.go_forward:
                     # Set throttle back to stored value
@@ -83,16 +69,13 @@ def decision_step(Rover):
     # Just to make the rover do something
     # even if no modifications have been made to the code
     elif Rover.nav_angles is not None and Rover.nav_dists is None:
-        print("F2")
         Rover.throttle = 0
         Rover.steer = 5 + 10*np.mean(Rover.nav_angles)
         Rover.brake = 0
     else:
-        print("F3")
         Rover.throttle = -0.5*Rover.throttle_set
         Rover.steer = 0
         Rover.brake = 0
-        print('stop3 = {}'.format(np.mean(Rover.nav_angles)))
 
     # # If in a state where want to pickup a rock send pickup command
     # if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
