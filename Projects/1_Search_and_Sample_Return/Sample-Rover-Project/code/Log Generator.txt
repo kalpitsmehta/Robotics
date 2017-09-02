@@ -1,0 +1,29 @@
+# CSV Writer
+import csv
+import os
+
+# if os.path.exists('./log.csv'):
+#     os.remove('./log.csv')
+
+if not os.path.exists('./log.csv'):
+    with open('log.csv', 'w') as csvfile:
+        fieldnames = ['Path', 'SteerAngle', 'Throttle', 'Brake', 'Speed', 'X_Position', 'Y_Position', 'Pitch','Yaw','Roll']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+    
+with open('log.csv', 'r') as csvfile:
+    sniffer = csv.Sniffer()
+    has_header = sniffer.has_header(csvfile.readline())
+    print(has_header)
+    if not header:
+        with open('log.csv', 'w') as csvfile:
+#             fieldnames = ['Path;SteerAngle;Throttle;Brake;Speed;X_Position;Y_Position;Pitch;Yaw;Roll']
+            fieldnames = ['Path', 'SteerAngle', 'Throttle', 'Brake', 'Speed', 'X_Position', 'Y_Position', 'Pitch','Yaw','Roll']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+
+with open('log.csv', 'a') as csvfile:
+    filewriter = csv.writer(csvfile, delimiter=',')
+    filewriter.writerow(['Derek', 'Software Developer'])
+    filewriter.writerow(['Steve', 'Software Developer'])
+    filewriter.writerow(['Paul', 'Manager'])
