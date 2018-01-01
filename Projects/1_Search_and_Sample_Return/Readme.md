@@ -19,6 +19,8 @@ It is interesting to note that background parameter was introduced to the prespe
 
 For this purpose, first, the threshold image pixels were converted to the Rover-centric coordinate system using rover_coords() function and next to the world coordinate system using pix_to_world() function. Next, the Rover-centric coordinates were translated to polar coordinates which will be used to make decisions later on in this project. All these information is updated into the Rover object so that it can be returned back to the calling function. While performing this task the threshold images were also updated in the Rover object so that they become visible on the left side of the simulation. Note: It is important to have this image in range 0 to 255 instead of 0 to 1 which will typically be the case with the output of any threshold image.
 
+![Alt text](./Images/Transforms.PNG?raw=true "Transforms")
+
 **Generating World Map and Video**
 
 The first five steps for generating the World Map are completely same as the perception step to the point where information about world map coordinates is obtained. Once we have this coordinates it is used to update the world map with the information of terrain, obstacles and rocks. Next, a mosaic image is created which is segmented into original image in the upper left corner, the warped image in the upper right corner, a world map with ground truth and overlays in the lower left and finally some Rover statistics like position, orientation, throttle, velocity on the lower right. 
