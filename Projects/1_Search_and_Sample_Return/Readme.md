@@ -19,6 +19,12 @@ It is interesting to note that background parameter was introduced to the prespe
 
 For this purpose, first, the threshold image pixels were converted to the Rover-centric coordinate system using rover_coords() function and next to the world coordinate system using pix_to_world() function. Next, the Rover-centric coordinates were translated to polar coordinates which will be used to make decisions later on in this project. All these information is updated into the Rover object so that it can be returned back to the calling function. While performing this task the threshold images were also updated in the Rover object so that they become visible on the left side of the simulation. Note: It is important to have this image in range 0 to 255 instead of 0 to 1 which will typically be the case with the output of any threshold image.
 
+**Generating World Map and Video**
+
+The first five steps for generating the World Map are completely same as the perception step to the point where information about world map coordinates is obtained. Once we have this coordinates it is used to update the world map with the information of terrain, obstacles and rocks. Next, a mosaic image is created which is segmented into original image in the upper left corner, the warped image in the upper right corner, a world map with ground truth and overlays in the lower left and finally some Rover statistics like position, orientation, throttle, velocity on the lower right. 
+
+To create a video from this mosaic type images movipy.editor us used. The data information is reinitialized and fed at sixty frames per second to obtained the final output video clip. Which is further saved onto the local drive.
+
 ### Autonomous Navigation / Mapping
 
 **Perception Step**
@@ -27,6 +33,6 @@ In this step first, the source and destination points for the perspective transf
 
 **Decision Step**
 
-This steps takes in the Rover parameters as the input and completely focuses on decision making for navigation which is based on the information process in the perception step. On high level the Rover is asked to move if the values of navigational distance and angle are not null. If this is satisfied then the status of the Rover is checked if it's moving forward. While in the moving state the Rover is made to stop if the navigational angle is less than forward stop angel. Otherwise, the velocity of the Rover is verified. If this value is less than the maximum then the throttle for the Rover is set and its allowed to move forward. On the other hand, if the values of navigational distance and angels are null or small then the Rover is steered by a constant value added to the navigational angle. This helps Rover face in the direction where it can easily navigate. The complete decision tree is explained in a graphical format below.
+This steps takes in the Rover parameters as the input and completely focuses on decision making for navigation which is based on the information process in the perception step. On a high level, the Rover is asked to move if the values of navigational distance and angle are not null. If this is satisfied then the status of the Rover is checked if it's moving forward. While in the moving state the Rover is made to stop if the navigational angle is less than forwarding stop angel. Otherwise, the velocity of the Rover is verified. If this value is less than the maximum then the throttle for the Rover is set and its allowed to move forward. On the other hand, if the values of navigational distance and angels are null or small then the Rover is steered by a constant value added to the navigational angle. This helps Rover face in the direction where it can easily navigate. The complete decision tree is explained in a graphical format below.
 
 ![Alt text](./Images/P1_Logic.png?raw=true "Decision")
