@@ -15,7 +15,7 @@ First step is filtering point cloud data and remove the noise. For this purpose 
 
 ### RANSAC (Random Sample Consensus) Plane Fitting
 ![Image of RANSAC1](./images/Fig4.1_RANSAC-inliers.png)
-![Image of RANSAC2](./images/Fig4.2_RANSAC-inliers.png)
+![Image of RANSAC2](./images/Fig4.2_RANSAC-outliers.png)
 
 ### Clustering
 ![Image of Clustering](./images/Fig5_Clustering.png)
@@ -32,7 +32,7 @@ First step is filtering point cloud data and remove the noise. For this purpose 
 ![Image of World1](./images/Fig9.1_World1.png)
 
 ### World 2
-![Image of World2](./images/Fig9.2_World2.png)
+![Image of World2](./images/Fig9.1_World2.png)
 
 ### World 3
-![Image of World3](./images/Fig9.3_World3.png)
+![Image of World3](./images/Fig9.1_World3.png)
